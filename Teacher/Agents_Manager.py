@@ -13,29 +13,21 @@ class Server_Socket:
         self.pre_len = 2
         self.messages_to_send = []
         self.open_client_sockets = []
-        self.command = ''
         self.quit = False
         self.user_name = {}
         self.accept_agent = False
-
-    def setQuit(self):
-        self.quit = True
-
+    #main to thread
     def run(self):
         x = threading.Thread(target=self.main_loop, args=())
         x.start()
 
+    # listen to clients' connection
     def connect(self):
         self.ser_socket.bind(('0.0.0.0', self.port))
         print("Waiting for client")
         self.ser_socket.listen(5)
 
-    def send_waiting_messages(self):
-        for message in self.messages_to_send:
-            (curr_socket, data) = message
-            self.protocol_message(data, True, curr_socket)
-            self.messages_to_send.remove(message)
-
+    #read the file and send to client
     def send_file(self, get_file):
         file = open(get_file, 'rb')
         # reading the file into message
@@ -48,10 +40,10 @@ class Server_Socket:
         print(length)
         print(length_of_length)
         print(lengths)
-        #self.message_everyone(lengths)
         # sending the file itself
         self.send_file_all(message)
 
+    #send the message to the socket
     @staticmethod
     def protocol_message(message, is_text, curr_socket):
         length_msg = len(message)
@@ -72,16 +64,18 @@ class Server_Socket:
         else:
             curr_socket.send(message)
 
+    #send the message to every client that connected
     def message_everyone(self, message):
         for current_socket in self.open_client_sockets:
             self.protocol_message(message, True, current_socket)
 
+    #get the read file and send to all clients
     def send_file_all(self, message):
         for current_socket in self.open_client_sockets:
             self.protocol_message(message, False, current_socket)
 
-    def read_file(self):
-
+    #read the file - users
+    def read_file_names(self):
         users = open('Users.txt', 'r')
 
         name_code = {}
@@ -94,8 +88,9 @@ class Server_Socket:
 
         return name_code
 
+    #check if the name and password are in the file Users
     def check_pass(self, user, password):
-        name_code = self.read_file()
+        name_code = self.read_file_names()
         if str(name_code.get(user)) == password:
             print("yes")
             self.accept_agent = True
@@ -103,7 +98,7 @@ class Server_Socket:
             print("no")
             self.accept_agent = False
 
-
+    #recive the message from the client and translate the message
     @staticmethod
     def recv_message(curr_socket):
         length_length_str = curr_socket.recv(2)
@@ -121,6 +116,7 @@ class Server_Socket:
         print(message.decode())
         return message.decode()
 
+    #wait for clients and when a client is trying to join he check if he can join
     def main_loop(self):
         while True:
             rlist, wlist, xlist = select.select([self.ser_socket] + self.open_client_sockets, [], [])
@@ -128,6 +124,7 @@ class Server_Socket:
                 if current_socket is self.ser_socket:
                     (new_socket, address) = current_socket.accept()
                     self.open_client_sockets.append(new_socket)
+
                 name = self.recv_message(new_socket)
                 password = self.recv_message(new_socket)
                 self.check_pass((name), password)
@@ -135,7 +132,6 @@ class Server_Socket:
                     self.user_name.update({new_socket: name})
                 else:
                     self.open_client_sockets.remove(new_socket)
-            self.send_waiting_messages()
             if self.quit:
                 break
 

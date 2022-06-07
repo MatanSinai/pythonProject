@@ -31,19 +31,22 @@ class master_ui:
         x = threading.Thread(target=self.activate(), args=())
         x.start()
 
+    #get Agent and put into my variable master
     def set_master_socket(self, master_socket):
         self.master = master_socket
 
-
+    #update sendText with the the file path
     def openFile(self):
         self.sendText = filedialog.askopenfilename()
 
+    #open file explorer and let you choose the file path
     def loop_file(self):
         window = Tk()
         self.openFile()
         window.destroy()
         window.mainloop()
 
+    #recive the keys from the keyboard and mouse and update the sendText and text
     def handle_event(self, event):
         if event.type == pg.MOUSEBUTTONDOWN:
             # If the user clicked on the input_box rect.
@@ -75,6 +78,7 @@ class master_ui:
                         self.master.send_file(self.sendText)
                     elif self.sendText == 'close program':
                         print("close")
+                        self.master.message_everyone(self.sendText)
                         self.quit = True
                         self.master.quit = True
                     elif self.sendText == 'close all':
@@ -89,18 +93,19 @@ class master_ui:
                 # Re-render the text.
                 self.txt_surface = FONT.render(self.text, True, self.color)
 
-
+    # Resize the box if the text is too long.
     def update(self):
-        # Resize the box if the text is too long.
         width = max(200, self.txt_surface.get_width() + 10)
         self.rect.w = width
 
+    #draw the screen
     def draw(self, screen):
         # Blit the text.
         screen.blit(self.txt_surface, (self.rect.x + 5, self.rect.y + 5))
         # Blit the rect.
         pg.draw.rect(screen, self.color, self.rect, 2)
 
+    #run the whole graphic of the manager
     def activate(self):
         clock = pg.time.Clock()
 
