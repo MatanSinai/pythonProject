@@ -3,8 +3,9 @@ import App_Handler as app
 import Agent_Ui
 import tempfile
 def main():
-
-    my_socket = Client_Socket(1727, socket.socket(socket.AF_INET, socket.SOCK_STREAM), 2)
+    port = open('Get_Ip-Port.txt', 'r')
+    get = port.readlines()[-1]
+    my_socket = Client_Socket(int(get), socket.socket(socket.AF_INET, socket.SOCK_STREAM), 2)
     agent_name = Agent_Ui.master_ui()
     agent_name.set_agent(my_socket)
     agent_name.main_loop()
@@ -19,10 +20,15 @@ class Client_Socket:
         self.pre_len = pre_len
         self.name = ''
 
+    #read the ip from the file Get_Ip-port and try to connect to him
     def connect(self):
-        self.my_socket.connect(('127.0.0.1', self.port))
+        Ip = open('Get_Ip-Port.txt', 'r')
+        get = Ip.readlines()[0]
+        print(get)
+        self.my_socket.connect((get, self.port))
         print("Connection established")
 
+    #get text and boolean(if true do an encode else he is not doing an encode) and send to the manager
     def protocol_message(self, message, is_text):
         length_msg = len(message)
         length_msg_str = str(length_msg)
@@ -39,7 +45,8 @@ class Client_Socket:
         else:
             self.my_socket.send(message)
 
-    def open_app(self, data):
+    #get the command(data) and handle the command
+    def handle_app(self, data):
         if data == "excel":
             app.App_Handler().open_excel()
         elif data == "word":
@@ -56,7 +63,12 @@ class Client_Socket:
             app.App_Handler().close_power_point()
             app.App_Handler().close_word()
             app.App_Handler().close_excel()
+        elif data == 'close program':
+            app.App_Handler().close_power_point()
+            app.App_Handler().close_word()
+            app.App_Handler().close_excel()
 
+    #decode the massage the has been sent from manager
     def recv_message(self):
         length_length_str = self.my_socket.recv(2)
         if length_length_str == "":
@@ -72,7 +84,8 @@ class Client_Socket:
             message += self.my_socket.recv(int(message) - len(message))
         return message.decode()
 
-    def recv_file(self, file_type):
+    #recive the file and save him on the computer disk
+    def recv_file(self, file):
         # getting the length of the file
         length = self.my_socket.recv(3).decode()
         print(length)
@@ -93,6 +106,7 @@ class Client_Socket:
         text_file.close()
         return file_name
 
+    # responsible for the running client and call the function
     def main_loop(self):
         self.protocol_message(self.name.split(',')[0], True)
         self.protocol_message(self.name.split(',')[-1], True)
@@ -100,14 +114,17 @@ class Client_Socket:
             data = self.recv_message()
             if data == 'file':
                 # Check the type of the file to run
-                file_type = self.recv_message()
+                file = self.recv_message()
 
                 #get the file from the server
-                file_name = self.recv_file(file_type)
+                file_name = self.recv_file(file)
                 print("file name is:" + file_name)
                 app.App_Handler().open_file(file_name)
+            elif data == 'close program':
+                self.handle_app(data)
+                break
             else:
-                self.open_app(data)
+                self.handle_app(data)
 
             if data is None or data == "":
                 print("none")

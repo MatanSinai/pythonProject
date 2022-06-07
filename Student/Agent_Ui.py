@@ -24,9 +24,11 @@ class master_ui:
         self.quit = False
         self.input_box = self
 
+    #set the master(Agent) with the agent that working
     def set_agent(self, master_agent):
         self.master = master_agent
 
+    # recive the keys from the keyboard and mouse and update the sendText and text
     def handle_event(self, event):
         if event.type == pg.MOUSEBUTTONDOWN:
             # If the user clicked on the input_box rect.
@@ -50,18 +52,20 @@ class master_ui:
                 # Re-render the text.
                 self.txt_surface = FONT.render(self.text, True, self.color)
 
-
+    # Resize the box if the text is too long.
     def update(self):
         # Resize the box if the text is too long.
         width = max(200, self.txt_surface.get_width() + 10)
         self.rect.w = width
 
+    # draw the screen
     def draw(self, screen):
         # Blit the text.
         screen.blit(self.txt_surface, (self.rect.x + 5, self.rect.y + 5))
         # Blit the rect.
         pg.draw.rect(screen, self.color, self.rect, 2)
 
+    # run the whole graphic of the client
     def main_loop(self):
         clock = pg.time.Clock()
 
