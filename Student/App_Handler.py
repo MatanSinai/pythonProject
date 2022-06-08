@@ -1,6 +1,4 @@
 import win32com.client as win32
-from pathlib import Path
-
 
 class App_Handler:
     def __init__(self):
