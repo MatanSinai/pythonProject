@@ -16,6 +16,7 @@ class Server_Socket:
         self.quit = False
         self.user_name = {}
         self.accept_agent = False
+
     #main to thread
     def run(self):
         x = threading.Thread(target=self.main_loop, args=())
@@ -36,11 +37,12 @@ class Server_Socket:
         length = str(len(message))
         # getting the length of the length, and zero-filling him
         length_of_length = str(len(length)).zfill(3)
-        lengths = length_of_length + length
+        #lengths = length_of_length + length
         print(length)
         print(length_of_length)
-        print(lengths)
+        print(length)
         # sending the file itself
+
         self.send_file_all(message)
 
     #send the message to the socket
@@ -119,21 +121,22 @@ class Server_Socket:
     #wait for clients and when a client is trying to join he check if he can join
     def main_loop(self):
         while True:
+            if self.quit:
+                break
             rlist, wlist, xlist = select.select([self.ser_socket] + self.open_client_sockets, [], [])
             for current_socket in rlist:
                 if current_socket is self.ser_socket:
                     (new_socket, address) = current_socket.accept()
                     self.open_client_sockets.append(new_socket)
-
                 name = self.recv_message(new_socket)
                 password = self.recv_message(new_socket)
                 self.check_pass((name), password)
                 if self.accept_agent:
                     self.user_name.update({new_socket: name})
                 else:
+                    self.protocol_message("close socket", True, new_socket)
                     self.open_client_sockets.remove(new_socket)
-            if self.quit:
-                break
+
 
         print("finish")
         self.open_client_sockets.clear()

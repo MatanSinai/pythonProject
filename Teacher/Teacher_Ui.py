@@ -78,9 +78,10 @@ class master_ui:
                         self.master.send_file(self.sendText)
                     elif self.sendText == 'close program':
                         print("close")
-                        self.master.message_everyone(self.sendText)
                         self.quit = True
                         self.master.quit = True
+                        self.master.message_everyone(self.sendText)
+
                     elif self.sendText == 'close all':
                         self.master.message_everyone(self.sendText)
                     else:
