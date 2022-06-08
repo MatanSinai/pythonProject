@@ -25,7 +25,7 @@ class Client_Socket:
         Ip = open('Get_Ip-Port.txt', 'r')
         get = Ip.readlines()[0]
         print(get)
-        self.my_socket.connect((get, self.port))
+        self.my_socket.connect(("127.0.0.1", self.port))
         print("Connection established")
 
     #get text and boolean(if true do an encode else he is not doing an encode) and send to the manager
@@ -95,11 +95,11 @@ class Client_Socket:
         file_data = b"" + self.my_socket.recv(message_length)
 
         #save the received file to local disk
-        if file_type == 'docx':
+        if file == 'docx':
             file_name = tempfile.gettempdir() + r'\\tempTeacherFile.docx'
-        elif file_type == 'xlsx':
+        elif file == 'xlsx':
             file_name = tempfile.gettempdir() + r'\\tempTeacherFile.xlsx'
-        elif file_type == 'pptx':
+        elif file == 'pptx':
             file_name = tempfile.gettempdir() + r'\\tempTeacherFile.pptx'
         text_file = open(file_name, "wb")
         n = text_file.write(file_data)
@@ -122,6 +122,9 @@ class Client_Socket:
                 app.App_Handler().open_file(file_name)
             elif data == 'close program':
                 self.handle_app(data)
+                break
+
+            elif data == 'close socket':
                 break
             else:
                 self.handle_app(data)
