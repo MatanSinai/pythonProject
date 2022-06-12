@@ -72,7 +72,7 @@ class Client_Socket:
 
     #decode the massage the has been sent from manager
     def recv_message(self):
-        length_length_str = self.my_socket.recv(2)
+        length_length_str = self.my_socket.recv(3)
         if length_length_str == "":
             pass
         length_length_str = length_length_str.decode()
@@ -81,10 +81,25 @@ class Client_Socket:
         msg_length_str = self.my_socket.recv(length_length).decode()
         msg_length = int(msg_length_str)
 
-        message = self.my_socket.recv(int(msg_length))
+        message = self.my_socket.recv(msg_length)
         while len(message) < int(msg_length):
-            message += self.my_socket.recv(int(message) - len(message))
+            message += self.my_socket.recv(int(msg_length) - len(message))
         return message.decode()
+
+    def recv_file_message(self):
+        length_length_str = self.my_socket.recv(3)
+        if length_length_str == "":
+            pass
+        length_length_str = length_length_str.decode()
+        length_length = int(length_length_str)
+
+        msg_length_str = self.my_socket.recv(length_length).decode()
+        msg_length = int(msg_length_str)
+
+        message = self.my_socket.recv(msg_length)
+        while len(message) < int(msg_length):
+            message += self.my_socket.recv(int(msg_length) - len(message))
+        return message
 
     #recive the file and save him on the computer disk
     def recv_file(self, file):
@@ -116,7 +131,7 @@ class Client_Socket:
             data = self.recv_message()
             if data == 'file':
                 # Check the type of the file to run
-                file = self.recv_message()
+                file = self.recv_file_message()
 
                 #get the file from the server
                 file_name = self.recv_file(file)

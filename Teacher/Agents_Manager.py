@@ -33,6 +33,7 @@ class Server_Socket:
         file = open(get_file, 'rb')
         # reading the file into message
         message = file.read()
+
         # getting the length of the file (bytes)
         length = str(len(message))
         # getting the length of the length, and zero-filling him
@@ -42,8 +43,6 @@ class Server_Socket:
         print(length_of_length)
         print(length)
         # sending the file itself
-        self.message_everyone(length)
-        self.message_everyone(length_of_length)
         self.send_file_all(message)
 
     #send the message to the socket
@@ -53,7 +52,7 @@ class Server_Socket:
         length_msg_str = str(length_msg)
 
         length_length = len(length_msg_str)
-        length_length_str = str(length_length).zfill(2)
+        length_length_str = str(length_length).zfill(3)
 
         curr_socket.send(length_length_str.encode())
         print("length_length_str " + length_length_str)
