@@ -36,7 +36,7 @@ class Client_Socket:
         length_msg_str = str(length_msg)
 
         length_length = len(length_msg_str)
-        length_length_str = str(length_length).zfill(2)
+        length_length_str = str(length_length).zfill(3)
 
         self.my_socket.send(length_length_str.encode())
 
@@ -86,21 +86,6 @@ class Client_Socket:
             message += self.my_socket.recv(int(msg_length) - len(message))
         return message.decode()
 
-    def recv_file_message(self):
-        length_length_str = self.my_socket.recv(3)
-        if length_length_str == "":
-            pass
-        length_length_str = length_length_str.decode()
-        length_length = int(length_length_str)
-
-        msg_length_str = self.my_socket.recv(length_length).decode()
-        msg_length = int(msg_length_str)
-
-        message = self.my_socket.recv(msg_length)
-        while len(message) < int(msg_length):
-            message += self.my_socket.recv(int(msg_length) - len(message))
-        return message
-
     #recive the file and save him on the computer disk
     def recv_file(self, file):
         # getting the length of the file
@@ -131,7 +116,7 @@ class Client_Socket:
             data = self.recv_message()
             if data == 'file':
                 # Check the type of the file to run
-                file = self.recv_file_message()
+                file = self.recv_message()
 
                 #get the file from the server
                 file_name = self.recv_file(file)

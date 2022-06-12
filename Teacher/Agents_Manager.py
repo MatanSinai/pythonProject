@@ -79,7 +79,6 @@ class Server_Socket:
     #read the file - users
     def read_file_names(self):
         users = open('Users.txt', 'r')
-
         name_code = {}
         line = list(users.readlines())
         for counter in range(len(line)):
@@ -103,7 +102,7 @@ class Server_Socket:
     #recive the message from the client and translate the message
     @staticmethod
     def recv_message(curr_socket):
-        length_length_str = curr_socket.recv(2)
+        length_length_str = curr_socket.recv(3)
         if length_length_str == "":
             pass
         length_length_str = length_length_str.decode()
