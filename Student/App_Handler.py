@@ -1,5 +1,4 @@
 import win32com.client as win32
-
 class App_Handler:
     def __init__(self):
         self.Word = win32.gencache.EnsureDispatch('Word.Application')

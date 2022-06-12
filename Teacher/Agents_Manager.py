@@ -33,7 +33,6 @@ class Server_Socket:
         file = open(get_file, 'rb')
         # reading the file into message
         message = file.read()
-
         # getting the length of the file (bytes)
         length = str(len(message))
         # getting the length of the length, and zero-filling him

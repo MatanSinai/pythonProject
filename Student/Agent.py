@@ -2,6 +2,7 @@ import socket
 import App_Handler as app
 import Agent_Ui
 import tempfile
+
 def main():
     port = open('Get_Ip-Port.txt', 'r')
     get = port.readlines()[-1]
@@ -25,7 +26,8 @@ class Client_Socket:
         Ip = open('Get_Ip-Port.txt', 'r')
         get = Ip.readlines()[0]
         print(get)
-        self.my_socket.connect(("127.0.0.1", self.port))
+        get = get.split('\n')[0]
+        self.my_socket.connect((get, self.port))
         print("Connection established")
 
     #get text and boolean(if true do an encode else he is not doing an encode) and send to the manager
