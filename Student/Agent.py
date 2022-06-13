@@ -2,6 +2,8 @@ import socket
 import App_Handler as app
 import Agent_Ui
 import tempfile
+import logging
+
 
 def main():
     port = open('Get_Ip-Port.txt', 'r')
@@ -20,15 +22,17 @@ class Client_Socket:
         self.my_socket = my_socket
         self.pre_len = pre_len
         self.name = ''
+        logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
+
 
     #read the ip from the file Get_Ip-port and try to connect to him
     def connect(self):
         Ip = open('Get_Ip-Port.txt', 'r')
         get = Ip.readlines()[0]
-        print(get)
+        logging.info(get)
         get = get.split('\n')[0]
-        self.my_socket.connect((get, self.port))
-        print("Connection established")
+        self.my_socket.connect(("127.0.0.1", self.port))
+        logging.info("Connection established")
 
     #get text and boolean(if true do an encode else he is not doing an encode) and send to the manager
     def protocol_message(self, message, is_text):
@@ -90,11 +94,13 @@ class Client_Socket:
     def recv_file(self, file):
         # getting the length of the file
         length = self.my_socket.recv(3).decode()
-        print(length)
+        logging.info(length)
         # getting the length of the file. reciving with length
         message_length = int(self.my_socket.recv(int(length)).decode())
-        print(message_length)
+        logging.info(message_length)
         file_data = b"" + self.my_socket.recv(message_length)
+        while len(file_data) < message_length:
+            file_data += b"" + self.my_socket.recv(message_length)
 
         #save the received file to local disk
         if file == 'docx':
@@ -120,7 +126,7 @@ class Client_Socket:
 
                 #get the file from the server
                 file_name = self.recv_file(file)
-                print("file name is:" + file_name)
+                logging.info("file name is:" + file_name)
                 app.App_Handler().open_file(file_name)
             elif data == 'close program':
                 self.handle_app(data)
@@ -132,13 +138,13 @@ class Client_Socket:
                 self.handle_app(data)
 
             if data is None or data == "":
-                print("none")
+                logging.info("none")
                 break
             if "^" in data[0]:
                 if 'exit' in data:
-                    print("exit")
+                    logging.info("exit")
                     break
-        print("Connection severed")
+        logging.info("Connection severed")
         self.my_socket.close()
 
 

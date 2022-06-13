@@ -4,6 +4,7 @@ import os.path
 import shutil
 import glob
 import threading
+import logging
 
 
 class Server_Socket:
@@ -16,6 +17,7 @@ class Server_Socket:
         self.quit = False
         self.user_name = {}
         self.accept_agent = False
+        logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 
     #main to thread
     def run(self):
@@ -25,7 +27,7 @@ class Server_Socket:
     # listen to clients' connection
     def connect(self):
         self.ser_socket.bind(('0.0.0.0', self.port))
-        print("Waiting for client")
+        logging.info('Waiting for client')
         self.ser_socket.listen(5)
 
     #read the file and send to client
@@ -39,9 +41,10 @@ class Server_Socket:
         # getting the length of the length, and zero-filling him
         length_of_length = str(len(length)).zfill(3)
         #lengths = length_of_length + length
-        print(length)
-        print(length_of_length)
-        print(length)
+
+        logging.info(length)
+        logging.info(length_of_length)
+        logging.info(length)
         # sending the file itself
         self.send_file_all(message)
 
@@ -55,12 +58,12 @@ class Server_Socket:
         length_length_str = str(length_length).zfill(3)
 
         curr_socket.send(length_length_str.encode())
-        print("length_length_str " + length_length_str)
+        logging.info("length_length_str " + length_length_str)
 
         curr_socket.send(length_msg_str.encode())
-        print("length_msg_str " + length_msg_str)
+        logging.info("length_msg_str " + length_msg_str)
 
-        print("message " + str(message))
+        logging.info("message " + str(message))
         if is_text:
             curr_socket.send(message.encode())
         else:
@@ -93,10 +96,10 @@ class Server_Socket:
     def check_pass(self, user, password):
         name_code = self.read_file_names()
         if str(name_code.get(user)) == password:
-            print("yes")
+            logging.info("yes")
             self.accept_agent = True
         else:
-            print("no")
+            logging.info("no")
             self.accept_agent = False
 
     #recive the message from the client and translate the message
@@ -114,7 +117,6 @@ class Server_Socket:
         message = curr_socket.recv(msg_length)
         while len(message) < msg_length:
             message += curr_socket.recv(int(message) - len(message))
-        print(message.decode())
         return message.decode()
 
     #wait for clients and when a client is trying to join he check if he can join

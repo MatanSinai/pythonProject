@@ -4,6 +4,8 @@ import pygame as pg
 import threading
 from tkinter import *
 from tkinter import filedialog
+import logging
+
 
 pg.init()
 screen = pg.display.set_mode((640, 480))
@@ -26,6 +28,8 @@ class master_ui:
         self.master: Agents_Manager = None
         self.quit = False
         self.input_box = self
+        logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
+
 
     def run(self):
         x = threading.Thread(target=self.activate(), args=())
@@ -63,9 +67,9 @@ class master_ui:
                     self.sendText = self.text
                     if self.sendText == 'file':
                         self.master.message_everyone('file')
-                        print("file")
+                        logging.info("file")
                         self.loop_file()
-                        print(self.sendText)
+                        logging.info(self.sendText)
                         if self.sendText.split(".")[-1] == 'xlsx':
                             self.master.message_everyone('xlsx')
 
@@ -77,7 +81,7 @@ class master_ui:
 
                         self.master.send_file(self.sendText)
                     elif self.sendText == 'close program':
-                        print("close")
+                        logging.info("close")
                         self.quit = True
                         self.master.quit = True
                         self.master.message_everyone(self.sendText)
